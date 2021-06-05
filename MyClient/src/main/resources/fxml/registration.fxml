@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clientApp.Controllers.RegistrationController">
+   <children>
+      <Button onAction="#reg" fx:id="regButton" layoutX="429.0" layoutY="430.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="167.0" text="Registration" textAlignment="CENTER" textFill="#576122" textOverrun="WORD_ELLIPSIS">
+         <font>
+            <Font name="Bernard MT Condensed" size="22.0" />
+         </font>
+      </Button>
+      <TextField fx:id="login" layoutX="362.0" layoutY="270.0" prefHeight="50.0" prefWidth="300.0" promptText="Login" style="-fx-background-radius: 50; -fx-border-radius: 50;">
+         <font>
+            <Font name="Bernard MT Condensed" size="23.0" />
+         </font>
+      </TextField>
+      <TextField fx:id="password" layoutX="362.0" layoutY="341.0" prefHeight="50.0" prefWidth="300.0" promptText="Password" style="-fx-background-radius: 50; -fx-border-radius: 50;">
+         <font>
+            <Font name="Bernard MT Condensed" size="23.0" />
+         </font>
+      </TextField>
+      <Hyperlink onAction="#back" fx:id="backLink" layoutX="41.0" layoutY="664.0" text="Back" textFill="#fc6900" underline="true">
+         <font>
+            <Font size="22.0" />
+         </font>
+      </Hyperlink>
+      <TextField fx:id="nickname" layoutX="362.0" layoutY="196.0" prefHeight="50.0" prefWidth="300.0" promptText="Nickname" style="-fx-background-radius: 50; -fx-border-radius: 50;">
+         <font>
+            <Font name="Bernard MT Condensed" size="23.0" />
+         </font>
+      </TextField>
+   </children>
+</AnchorPane>

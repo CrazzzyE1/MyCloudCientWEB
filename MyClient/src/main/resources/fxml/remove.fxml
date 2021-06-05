@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="350.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clientApp.Controllers.RemoveController">
+   <children>
+      <TextField fx:id="password" focusTraversable="false" layoutX="67.0" layoutY="100.0" prefHeight="25.0" prefWidth="217.0" promptText="Enter password for remove" />
+      <Text layoutX="38.0" layoutY="44.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Do you really want to delete your account?" textAlignment="CENTER" wrappingWidth="281.080078125">
+         <font>
+            <Font name="System Bold" size="19.0" />
+         </font>
+      </Text>
+      <Button fx:id="removeButton" focusTraversable="false" layoutX="38.0" layoutY="146.0" mnemonicParsing="false" onAction="#remove" style="-fx-border-color: black; -fx-border-width: 3;" text="Remove account" textFill="RED" />
+      <Button fx:id="cancelButton" focusTraversable="false" layoutX="208.0" layoutY="146.0" mnemonicParsing="false" onAction="#cancel" prefHeight="31.0" prefWidth="111.0" style="-fx-border-color: black; -fx-border-width: 3;" text="Cancel" textFill="RED" />
+   </children>
+</AnchorPane>
