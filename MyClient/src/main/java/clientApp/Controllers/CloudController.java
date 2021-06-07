@@ -33,7 +33,6 @@ public class CloudController implements Initializable {
     private boolean sortFlag = true;
     private long sizeOfFile = 0;
 
-
     public CloudController() {
         client = Client.getInstance();
         list = FXCollections.observableArrayList();
@@ -188,9 +187,12 @@ public class CloudController implements Initializable {
     //Смена директории
     public void cd(String dir) {
         if (dir.equals("<-??Back")) dir = "back";
-        client.sendMessage("cd " + dir);
-        client.readMessage();
-        client.sendMessage("ls");
+        client.sendMessage("cd ".concat(dir.replace("[DIR]", "")).concat(" ").concat(client.getCurrentDir()));
+        String answer = client.readMessage();
+        if(answer.split(" ")[0].equals("success")) {
+            client.setCurrentDir(answer.split(" ")[1]);
+        }
+        client.sendMessage("ls ".concat(client.getCurrentDir()));
         listFilesOnServer = client.readMessage();
         updateListViewer(list, listFilesOnServer, cloudFilesList);
     }
@@ -339,7 +341,7 @@ public class CloudController implements Initializable {
 
     public void checkFreeSpace(Integer space) {
         System.out.println("Check space");
-        client.sendMessage("checkSpace");
+        client.sendMessage("checkSpace " + client.getLogin());
         double size = Double.parseDouble(client.readMessage());
         client.setFreeSpace((int) size);
         String tmp = "";
@@ -364,7 +366,7 @@ public class CloudController implements Initializable {
         } else {
             tmp = tmp.concat(String.format("%.2f", (size))).concat(" ").concat("B");
         }
-        tmp = tmp.concat(" / ").concat(space.toString()).concat(" GiB");
+        tmp = tmp.concat(" / ").concat(space.toString()).concat(" MiB");
         System.out.println(tmp);
         freeSpace.setText(tmp);
     }
@@ -419,7 +421,7 @@ public class CloudController implements Initializable {
     // Инит на старте программы
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        client.sendMessage("ls");
+        client.sendMessage("ls ".concat(client.getCurrentDir()));
         listFilesOnServer = client.readMessage();
         updateListViewer(list, listFilesOnServer, cloudFilesList);
         updateListViewer(list, getPcFilesList(pcPath), pcFilesList);
