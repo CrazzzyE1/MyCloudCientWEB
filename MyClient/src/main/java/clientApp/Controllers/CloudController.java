@@ -45,15 +45,17 @@ public class CloudController implements Initializable {
     public void mkdir() {
 
         String name = folderName.getText().trim().replace(" ", "??");
-
         if (!name.isEmpty()) {
-            client.sendMessage("mkdir " + name);
+            client.sendMessage("mkdir ".concat(name.replace("[DIR]", "")).concat(" ").concat(client.getCurrentDir()));
             if (client.readMessage().equals("dirSuccess")) {
-                client.sendMessage("ls");
+                client.sendMessage("ls ".concat(client.getCurrentDir()));
                 listFilesOnServer = client.readMessage();
                 updateListViewer(list, listFilesOnServer, cloudFilesList);
                 folderName.setStyle("-fx-border-color: grey;");
                 folderName.clear();
+            } else {
+                folderName.clear();
+                folderName.setPromptText("Name exists");
             }
         } else {
             folderName.setPromptText("Enter new name");
@@ -68,9 +70,15 @@ public class CloudController implements Initializable {
                     && !cloudFilesList.getSelectionModel().getSelectedItem().equals("<- Back")
                     && !cloudFilesList.getSelectionModel().getSelectedItem().equals("!Recycle_Bin")) {
                 String name = cloudFilesList.getSelectionModel().getSelectedItem();
-                client.sendMessage("rm " + name.replace(" ", "??"));
+                if(name.startsWith("[DIR]")) {
+                    name = "rm ".concat(name.replace(" ", "??").replace("[DIR]", ""));
+                } else {
+                   name = "rmf ".concat(name.replace(" ", "??"));
+                }
+                client.sendMessage(name
+                        .concat(" ").concat(client.getCurrentDir()));
                 if (client.readMessage().equals("rmSuccess")) {
-                    client.sendMessage("ls");
+                    client.sendMessage("ls ".concat(client.getCurrentDir()));
                     listFilesOnServer = client.readMessage();
                     updateListViewer(list, listFilesOnServer, cloudFilesList);
                 }
@@ -83,7 +91,7 @@ public class CloudController implements Initializable {
 
     //Сортировка списка файлов в списке файлов сервера (ListView). Криво выглядит, но работает. К ней вернусь еще.
     public void sortListView(ActionEvent actionEvent) {
-        client.sendMessage("ls");
+        client.sendMessage("ls ".concat(client.getCurrentDir()));
         listFilesOnServer = client.readMessage();
         updateListViewer(list, listFilesOnServer, cloudFilesList);
         ArrayList<String> sb1 = new ArrayList<>();
@@ -101,15 +109,16 @@ public class CloudController implements Initializable {
         }
 
         if (sortFlag) {
-            tmp = (sb1.toString() + " " + sb2.toString());
+            tmp = (sb1 + " " + sb2);
         } else {
-            tmp = (sb2.toString() + " " + sb1.toString());
+            tmp = (sb2 + " " + sb1);
         }
         sortFlag = !sortFlag;
 
         tmp = tmp.replace(",", "")
                 .replace("[", "")
-                .replace("]", "");
+                .replace("]", "")
+                .replace("DIR", "[DIR]");
         updateListViewer(list, tmp, cloudFilesList);
 
     }
