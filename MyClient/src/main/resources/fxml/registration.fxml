@@ -6,6 +6,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
+<?import javafx.scene.control.PasswordField?>
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clientApp.Controllers.RegistrationController">
    <children>
       <Button onAction="#reg" fx:id="regButton" layoutX="429.0" layoutY="430.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="167.0" text="Registration" textAlignment="CENTER" textFill="#576122" textOverrun="WORD_ELLIPSIS">
@@ -18,11 +19,11 @@
             <Font name="Bernard MT Condensed" size="23.0" />
          </font>
       </TextField>
-      <TextField fx:id="password" layoutX="362.0" layoutY="341.0" prefHeight="50.0" prefWidth="300.0" promptText="Password" style="-fx-background-radius: 50; -fx-border-radius: 50;">
+      <PasswordField fx:id="password" layoutX="362.0" layoutY="341.0" prefHeight="50.0" prefWidth="300.0" promptText="Password" style="-fx-background-radius: 50; -fx-border-radius: 50;">
          <font>
             <Font name="Bernard MT Condensed" size="23.0" />
          </font>
-      </TextField>
+      </PasswordField>
       <Hyperlink onAction="#back" fx:id="backLink" layoutX="41.0" layoutY="664.0" text="Back" textFill="#fc6900" underline="true">
          <font>
             <Font size="22.0" />

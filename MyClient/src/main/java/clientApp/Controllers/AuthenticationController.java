@@ -42,10 +42,11 @@ public class AuthenticationController {
                 .concat(" ").concat(password.getText().trim().replace(" ", "??"));
         client.sendMessage(msg);
         msg = client.readMessage();
-        System.out.println(msg);
-        // Если сервер ответил  Успешно, перходим в Основное окно приложения
+        // Если сервер ответил  Успешно, переходим в Основное окно приложения
         String space = msg.split(" ")[1];
+        String current_dir = msg.split(" ")[2];
         client.setSpace(Integer.parseInt(space));
+        client.setCurrentDir(current_dir);
 
         if (msg.split(" ")[0].equals("authsuccess")) {
             client.setLogin(login.getText().trim());
