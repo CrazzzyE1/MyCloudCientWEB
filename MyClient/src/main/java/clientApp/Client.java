@@ -22,6 +22,7 @@ public class Client implements Closeable {
     private String login = "";
     private String message = "";
     private String currentDir = "";
+    private String copyCutTmpFile = "";
 
     public static Client getInstance() {
         if (instance == null) {
@@ -41,6 +42,15 @@ public class Client implements Closeable {
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        }
+    }
+
+
+    public String getCopyCutTmpFile() {
+        return copyCutTmpFile;
+    }
+
+    public void setCopyCutTmpFile(String copyCutTmpFile) {
+        this.copyCutTmpFile = copyCutTmpFile;
     }
 
     public String getCurrentDir() {

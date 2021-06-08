@@ -30,7 +30,6 @@ public class RemoveController {
             password.setPromptText("Empty password");
             return;
         }
-        System.out.println("remove " + client.getLogin() + " " + pass);
         client.sendMessage("remove " + client.getLogin() + " " + pass);
         String answer = client.readMessage();
         if (answer.equals("success")) {

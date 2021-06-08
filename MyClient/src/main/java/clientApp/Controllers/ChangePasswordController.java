@@ -30,7 +30,6 @@ public class ChangePasswordController {
             oldpassword.setPromptText("Empty password");
             return;
         }
-        System.out.println("change " + client.getLogin() + " " + oldPass + " " + newPass);
         client.sendMessage("change " + client.getLogin() + " " + oldPass + " " + newPass);
         String answer = client.readMessage();
         if (answer.equals("success")) {
