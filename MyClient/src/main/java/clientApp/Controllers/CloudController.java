@@ -70,10 +70,10 @@ public class CloudController implements Initializable {
                     && !cloudFilesList.getSelectionModel().getSelectedItem().equals("<- Back")
                     && !cloudFilesList.getSelectionModel().getSelectedItem().equals("!Recycle_Bin")) {
                 String name = cloudFilesList.getSelectionModel().getSelectedItem();
-                if(name.startsWith("[DIR]")) {
+                if (name.startsWith("[DIR]")) {
                     name = "rm ".concat(name.replace(" ", "??").replace("[DIR]", ""));
                 } else {
-                   name = "rmf ".concat(name.replace(" ", "??"));
+                    name = "rmf ".concat(name.replace(" ", "??"));
                 }
                 client.sendMessage(name
                         .concat(" ").concat(client.getCurrentDir()));
@@ -187,7 +187,7 @@ public class CloudController implements Initializable {
                 index = i;
             }
         }
-        if(index == -1) return path;
+        if (index == -1) return path;
         path = path.substring(0, index);
         if (path.equals("C:")) path = "C:/";
         return path;
@@ -198,7 +198,7 @@ public class CloudController implements Initializable {
         if (dir.equals("<-??Back")) dir = "back";
         client.sendMessage("cd ".concat(dir.replace("[DIR]", "")).concat(" ").concat(client.getCurrentDir()));
         String answer = client.readMessage();
-        if(answer.split(" ")[0].equals("success")) {
+        if (answer.split(" ")[0].equals("success")) {
             client.setCurrentDir(answer.split(" ")[1]);
         }
         client.sendMessage("ls ".concat(client.getCurrentDir()));
@@ -208,8 +208,8 @@ public class CloudController implements Initializable {
 
     //Получение адреса папки на сервере
     public String getAddressLine() {
-        client.sendMessage("getAddress");
-        return client.readMessage();
+        client.sendMessage("getAddress ".concat(client.getCurrentDir()));
+        return client.getLogin().concat(client.readMessage());
     }
 
     //cd на ПК по папкам
@@ -226,34 +226,80 @@ public class CloudController implements Initializable {
         }
     }
 
+//    //Копирование файла
+//    public void copyFile(ActionEvent actionEvent) {
+//        if(client.getFreeSpace() < 0) return;
+//        try {
+//            if (!cloudFilesList.getSelectionModel().getSelectedItem().isEmpty()
+//                    && !cloudFilesList.getSelectionModel().getSelectedItem().equals("<- Back")) {
+//                String name = cloudFilesList.getSelectionModel().getSelectedItem().replace(" ", "??");
+//                client.sendMessage("copy " + name);
+//                client.readMessage();
+//            }
+//        } catch (RuntimeException ex) {
+//            System.out.println("Try again");
+//        }
+//    }
+
     //Копирование файла
     public void copyFile(ActionEvent actionEvent) {
-        if(client.getFreeSpace() < 0) return;
-        try {
-            if (!cloudFilesList.getSelectionModel().getSelectedItem().isEmpty()
-                    && !cloudFilesList.getSelectionModel().getSelectedItem().equals("<- Back")) {
-                String name = cloudFilesList.getSelectionModel().getSelectedItem().replace(" ", "??");
-                client.sendMessage("copy " + name);
-                client.readMessage();
-            }
-        } catch (RuntimeException ex) {
-            System.out.println("Try again");
+        if (client.getFreeSpace() < 0) return;
+        if (!cloudFilesList.getSelectionModel().getSelectedItem().isEmpty()
+                && !cloudFilesList.getSelectionModel().getSelectedItem().equals("<- Back")) {
+            String name = cloudFilesList.getSelectionModel().getSelectedItem().replace(" ", "??");
+            client.setCopyCutTmpFile("copy ".concat(name).concat(" ").concat(client.getCurrentDir()));
         }
     }
 
     // Вырезание файла
     public void cut(ActionEvent actionEvent) {
-        try {
-            if (!cloudFilesList.getSelectionModel().getSelectedItem().isEmpty()
-                    && !cloudFilesList.getSelectionModel().getSelectedItem().equals("<- Back")) {
-                String name = cloudFilesList.getSelectionModel().getSelectedItem().replace(" ", "??");
-                client.sendMessage("cut " + name);
-                client.readMessage();
-            }
-        } catch (RuntimeException ex) {
-            System.out.println("Try again");
+        if (!cloudFilesList.getSelectionModel().getSelectedItem().isEmpty()
+                && !cloudFilesList.getSelectionModel().getSelectedItem().equals("<- Back")) {
+            String name = cloudFilesList.getSelectionModel().getSelectedItem().replace(" ", "??");
+            client.setCopyCutTmpFile("cut ".concat(name).concat(" ").concat(client.getCurrentDir()));
         }
     }
+
+    // Вставка файла
+    public void paste(ActionEvent actionEvent) {
+        String answer = "";
+        if (!client.getCopyCutTmpFile().isEmpty()) {
+            client.sendMessage("paste ".concat(client.getCopyCutTmpFile().concat(" ").concat(client.getCurrentDir())));
+            answer = client.readMessage();
+        }
+        if (answer.equals("pasteSuccess")) {
+            client.sendMessage("ls ".concat(client.getCurrentDir()));
+            listFilesOnServer = client.readMessage();
+            updateListViewer(list, listFilesOnServer, cloudFilesList);
+            checkFreeSpace(client.getSpace());
+            client.setCopyCutTmpFile("");
+        }
+    }
+
+//    // Вставка файла
+//    public void paste(ActionEvent actionEvent) {
+//        client.sendMessage("paste");
+//        client.readMessage();
+//        client.sendMessage("ls");
+//        listFilesOnServer = client.readMessage();
+//        updateListViewer(list, listFilesOnServer, cloudFilesList);
+//        checkFreeSpace(client.getSpace());
+//
+//    }
+
+//    // Вырезание файла
+//    public void cut(ActionEvent actionEvent) {
+//        try {
+//            if (!cloudFilesList.getSelectionModel().getSelectedItem().isEmpty()
+//                    && !cloudFilesList.getSelectionModel().getSelectedItem().equals("<- Back")) {
+//                String name = cloudFilesList.getSelectionModel().getSelectedItem().replace(" ", "??");
+//                client.sendMessage("cut " + name);
+//                client.readMessage();
+//            }
+//        } catch (RuntimeException ex) {
+//            System.out.println("Try again");
+//        }
+//    }
 
     public void download(ActionEvent actionEvent) {
         try {
@@ -278,7 +324,7 @@ public class CloudController implements Initializable {
     }
 
     public void upload(ActionEvent actionEvent) throws RuntimeException {
-        if(client.getFreeSpace() < 0) return;
+        if (client.getFreeSpace() < 0) return;
         try {
             if (!pcFilesList.getSelectionModel().getSelectedItem().isEmpty()
                     && !pcFilesList.getSelectionModel().getSelectedItem().equals("<- Back")
@@ -309,17 +355,6 @@ public class CloudController implements Initializable {
 
     }
 
-    // Вставка файла
-    public void paste(ActionEvent actionEvent) {
-        client.sendMessage("paste");
-        client.readMessage();
-        client.sendMessage("ls");
-        listFilesOnServer = client.readMessage();
-        updateListViewer(list, listFilesOnServer, cloudFilesList);
-        checkFreeSpace(client.getSpace());
-
-    }
-
     // For fun
     public void openWebpage(ActionEvent actionEvent) {
         try {
@@ -333,7 +368,7 @@ public class CloudController implements Initializable {
     public void search(ActionEvent actionEvent) {
         if (searchLabel.getText().trim().isEmpty()) return;
         String searchStr = searchLabel.getText().trim();
-        client.sendMessage("search " + searchStr);
+        client.sendMessage("search ".concat(searchStr).concat(" ").concat(client.getLogin()));
         searchStr = client.readMessage();
         searchLabel.clear();
         if (searchStr.equals("Not Found")) {
@@ -400,12 +435,10 @@ public class CloudController implements Initializable {
     }
 
     public void changePassword(ActionEvent actionEvent) {
-        System.out.println("Change pass");
         changeWindow("changepassword");
     }
 
     public void removeAccount(ActionEvent actionEvent) {
-        System.out.println("Remove account");
         changeWindow("remove");
     }
 
@@ -420,7 +453,6 @@ public class CloudController implements Initializable {
             stage.setScene(new Scene(chat));
             stage.setResizable(false);
             stage.show();
-//            login.getScene().getWindow().hide();
         } catch (IOException e) {
             e.printStackTrace();
         }
