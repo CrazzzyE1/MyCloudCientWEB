@@ -416,9 +416,9 @@ public class CloudController implements Initializable {
     }
 
     public void recycleClean(ActionEvent actionEvent) {
-        client.sendMessage("recycleClean");
+        client.sendMessage("recycleClean ".concat(client.getLogin()));
         client.readMessage();
-        client.sendMessage("ls");
+        client.sendMessage("ls ".concat(client.getCurrentDir()));
         listFilesOnServer = client.readMessage();
         updateListViewer(list, listFilesOnServer, cloudFilesList);
         checkFreeSpace(client.getSpace());
@@ -426,9 +426,9 @@ public class CloudController implements Initializable {
 
 
     public void restore(ActionEvent actionEvent) {
-        client.sendMessage("restore");
+        client.sendMessage("restore ".concat(client.getLogin()));
         client.readMessage();
-        client.sendMessage("ls");
+        client.sendMessage("ls ".concat(client.getCurrentDir()));
         listFilesOnServer = client.readMessage();
         updateListViewer(list, listFilesOnServer, cloudFilesList);
         checkFreeSpace(client.getSpace());
@@ -457,6 +457,19 @@ public class CloudController implements Initializable {
             e.printStackTrace();
         }
 
+    }
+
+    // Переход в корзину
+    public void recycleBin(ActionEvent actionEvent) {
+        client.sendMessage("recycle ".concat(client.getLogin()));
+        client.setCurrentDir(client.readMessage());
+        client.sendMessage("ls ".concat(client.getCurrentDir()));
+        listFilesOnServer = client.readMessage();
+        updateListViewer(list, listFilesOnServer, cloudFilesList);
+        updateListViewer(list, getPcFilesList(pcPath), pcFilesList);
+        addressPC.setText(pcPath);
+        checkFreeSpace(client.getSpace());
+        addressLine.setText("Recycle Bin");
     }
 
     // Инит на старте программы
@@ -490,6 +503,5 @@ public class CloudController implements Initializable {
 
     @FXML
     private TextField freeSpace;
-
 
 }
