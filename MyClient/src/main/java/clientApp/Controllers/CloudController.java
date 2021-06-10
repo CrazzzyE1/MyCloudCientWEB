@@ -20,6 +20,8 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ResourceBundle;
@@ -98,7 +100,6 @@ public class CloudController implements Initializable {
         ArrayList<String> sb2 = new ArrayList<>();
         String tmp;
         ObservableList<String> str = cloudFilesList.getItems();
-
         for (int i = 0; i < str.size(); i++) {
             String tmpstr = str.get(i).replace(" ", "??");
             if (tmpstr.contains(".")) {
@@ -107,20 +108,17 @@ public class CloudController implements Initializable {
                 sb2.add(tmpstr);
             }
         }
-
         if (sortFlag) {
             tmp = (sb1 + " " + sb2);
         } else {
             tmp = (sb2 + " " + sb1);
         }
         sortFlag = !sortFlag;
-
         tmp = tmp.replace(",", "")
                 .replace("[", "")
                 .replace("]", "")
                 .replace("DIR", "[DIR]");
         updateListViewer(list, tmp, cloudFilesList);
-
     }
 
     //Получение списка файлов на ПК пользователя.
@@ -226,21 +224,6 @@ public class CloudController implements Initializable {
         }
     }
 
-//    //Копирование файла
-//    public void copyFile(ActionEvent actionEvent) {
-//        if(client.getFreeSpace() < 0) return;
-//        try {
-//            if (!cloudFilesList.getSelectionModel().getSelectedItem().isEmpty()
-//                    && !cloudFilesList.getSelectionModel().getSelectedItem().equals("<- Back")) {
-//                String name = cloudFilesList.getSelectionModel().getSelectedItem().replace(" ", "??");
-//                client.sendMessage("copy " + name);
-//                client.readMessage();
-//            }
-//        } catch (RuntimeException ex) {
-//            System.out.println("Try again");
-//        }
-//    }
-
     //Копирование файла
     public void copyFile(ActionEvent actionEvent) {
         if (client.getFreeSpace() < 0) return;
@@ -276,50 +259,13 @@ public class CloudController implements Initializable {
         }
     }
 
-//    // Вставка файла
-//    public void paste(ActionEvent actionEvent) {
-//        client.sendMessage("paste");
-//        client.readMessage();
-//        client.sendMessage("ls");
-//        listFilesOnServer = client.readMessage();
-//        updateListViewer(list, listFilesOnServer, cloudFilesList);
-//        checkFreeSpace(client.getSpace());
-//
-//    }
-
-//    // Вырезание файла
-//    public void cut(ActionEvent actionEvent) {
-//        try {
-//            if (!cloudFilesList.getSelectionModel().getSelectedItem().isEmpty()
-//                    && !cloudFilesList.getSelectionModel().getSelectedItem().equals("<- Back")) {
-//                String name = cloudFilesList.getSelectionModel().getSelectedItem().replace(" ", "??");
-//                client.sendMessage("cut " + name);
-//                client.readMessage();
-//            }
-//        } catch (RuntimeException ex) {
-//            System.out.println("Try again");
-//        }
-//    }
-
     public void download(ActionEvent actionEvent) {
-        try {
-            if (!cloudFilesList.getSelectionModel().getSelectedItem().isEmpty()
-                    && !cloudFilesList.getSelectionModel().getSelectedItem().equals("<- Back")) {
-                String name = cloudFilesList.getSelectionModel().getSelectedItem().replace(" ", "??");
-                client.sendMessage("download " + name);
-                String msg = client.readMessage();
-                if (msg.split(" ")[0].equals("downloadSuccess")) {
-                    sizeOfFile = Long.parseLong(msg.split(" ")[1]);
-                    client.sendMessage("waiting");
-                    client.getFile(pcPath, cloudFilesList.getSelectionModel().getSelectedItem(), sizeOfFile);
-                }
-                //обновить листы
-                updateListViewer(list, getPcFilesList(pcPath), pcFilesList);
-
-
-            }
-        } catch (RuntimeException ex) {
-            System.out.println("Try again");
+        if (!cloudFilesList.getSelectionModel().getSelectedItem().isEmpty()
+                && !cloudFilesList.getSelectionModel().getSelectedItem().equals("<- Back")
+                && !cloudFilesList.getSelectionModel().getSelectedItem().startsWith("[DIR]")) {
+            String name = cloudFilesList.getSelectionModel().getSelectedItem().replace(" ", "??");
+            client.downloadFile(name.replace("??", " "), client.getCurrentDir(), pcPath);
+            updateListViewer(list, getPcFilesList(pcPath), pcFilesList);
         }
     }
 
@@ -330,29 +276,18 @@ public class CloudController implements Initializable {
                     && !pcFilesList.getSelectionModel().getSelectedItem().equals("<- Back")
                     && !pcFilesList.getSelectionModel().getSelectedItem().equals("Empty")) {
                 String name = pcFilesList.getSelectionModel().getSelectedItem().replace(" ", "??");
-                File upload = new File(pcPath + "/" + name.replace("??", " "));
-                if (upload.isDirectory() || upload.length() < 1) return;
-                client.sendMessage("upload " + name);
-                String msg = client.readMessage();
-                if (msg.split(" ")[0].equals("uploadSuccess")) {
-                    System.out.println("File name: " + name);
-                    System.out.println("Upload File size: " + upload.length());
-                    client.sendMessage("waitingUpload " + upload.length());
-                    client.sendFile(pcPath, name);
-                    client.readMessage();
-                    checkFreeSpace(client.getSpace());
-                    client.sendMessage("ls");
+                if (!Files.exists(Paths.get(pcPath + "/" + name.replace("??", " ")))) return;
+                client.uploadFile(name, client.getCurrentDir(), pcPath);
+
+                    client.sendMessage("ls ".concat(client.getCurrentDir()));
                     listFilesOnServer = client.readMessage();
                     updateListViewer(list, listFilesOnServer, cloudFilesList);
 
-
-                }
             }
 
         } catch (RuntimeException e) {
             e.printStackTrace();
         }
-
     }
 
     // For fun
@@ -456,7 +391,6 @@ public class CloudController implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     // Переход в корзину
