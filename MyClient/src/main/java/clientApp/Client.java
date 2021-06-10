@@ -1,9 +1,14 @@
 package clientApp;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.HttpClients;
+
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.Socket;
-import java.net.URL;
+import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -15,7 +20,8 @@ public class Client implements Closeable {
     private DataInputStream is;
     private DataOutputStream os;
     private byte[] buffer;
-    private final int PORT = 8080;
+    final String HOST = "localhost";
+    final String PORT = "8080";
     private Integer space;
     private Integer DEFAULT_SPACE = 15;
     private long freeSpace;
@@ -32,16 +38,9 @@ public class Client implements Closeable {
     }
 
     private Client() {
-//        try {
         this.freeSpace = 0;
         this.space = DEFAULT_SPACE;
-//            this.socket = new Socket("localhost", PORT);
-//            this.is = new DataInputStream(socket.getInputStream());
-//            this.os = new DataOutputStream(socket.getOutputStream());
-//            this.buffer = new byte[65536]; // 64 кбайта
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        this.buffer = new byte[65536]; // 64 кбайта
     }
 
 
@@ -85,20 +84,8 @@ public class Client implements Closeable {
         this.space = space;
     }
 
-//    // Отправка сообщений
-//    public void sendMessage(String msg) {
-//        try {
-//            os.write(msg.getBytes(StandardCharsets.UTF_8));
-//            os.flush();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
     // Отправка сообщений
     public void sendMessage(String msg) {
-        final String HOST = "localhost";
-        final String PORT = "8080";
         final String PAGE = "api";
         final String QUERY = msg.replace(" ", "%20");
         String url = "http://" + HOST + ":" + PORT + "/" + PAGE + "?query=" + QUERY;
@@ -132,57 +119,67 @@ public class Client implements Closeable {
         }
     }
 
+    public void downloadFile(String name, String currentDir, String pcPath) {
+        final String PAGE = "api/download";
+        String url = "http://" + HOST + ":" + PORT + "/" + PAGE
+                + "?name=" + name.replace(" ", "%20")
+                + "&dir=" + currentDir;
+        HttpURLConnection connection = null;
+        try {
+            connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.setRequestMethod("GET");
+            connection.setUseCaches(false);
+            connection.setConnectTimeout(2500);
+            connection.setReadTimeout(2500);
+            connection.connect();
+            if (HttpURLConnection.HTTP_OK == connection.getResponseCode()) {
+                DataInputStream in = new DataInputStream(connection.getInputStream());
+                int bytesRead = 0;
+                while (true) {
+                    bytesRead = in.read(buffer);
+                    if (bytesRead == -1) break;
+                    byte[] tmp = new byte[bytesRead];
+                    System.arraycopy(buffer, 0, tmp, 0, tmp.length);
+                    if (!Files.exists(Paths.get(pcPath + "/" + name))) {
+                        Files.createFile(Paths.get(pcPath + "/" + name));
+                    }
+                    Files.write(Paths.get(pcPath + "/" + name), tmp, StandardOpenOption.APPEND);
+                }
+            }
+        } catch (Throwable cause) {
+            cause.printStackTrace();
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    // Отправка файла на сервер
+    public void uploadFile(String name, String dir, String pcPath) {
+        String PAGE = "api/upload";
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        builder.addTextBody("name", name.replace("??", " "));
+        builder.addTextBody("dir", dir );
+        File file = new File(pcPath + "/" + name.replace("??", " "));
+        ContentType fileContentType = ContentType.create("image/jpeg");
+        String fileName = file.getName();
+        builder.addBinaryBody("file", file, fileContentType, fileName);
+        HttpEntity entity = builder.build();
+        URI uri = URI.create("http://" + HOST + ":" + PORT + "/" + PAGE);
+        HttpPost request = new HttpPost(uri);
+        request.setEntity(entity);
+        HttpClient client = HttpClients.createDefault();
+        try {
+            client.execute(request);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     //     Чтение сообщений
     public String readMessage() {
         return message;
-    }
-
-
-//    // Чтение сообщений
-//    public String readMessage() {
-//        String msg = "";
-//        try {
-//            int bytesRead = is.read(buffer);
-//            msg = new String(buffer, 0, bytesRead, StandardCharsets.UTF_8);
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        return msg;
-//    }
-
-    public boolean getFile(String pcPath, String name, long size) {
-        if (Files.exists(Paths.get(pcPath + "/" + name))) {
-            name = "copy_".concat(name);
-        }
-        long count = 0L;
-        try {
-            while (size != count) {
-                int bytesRead = is.read(buffer);
-                count += bytesRead;
-                System.out.println(count);
-                byte[] tmp = new byte[bytesRead];
-                System.arraycopy(buffer, 0, tmp, 0, tmp.length);
-                if (!Files.exists(Paths.get(pcPath + "/" + name))) {
-                    Files.createFile(Paths.get(pcPath + "/" + name));
-                }
-                Files.write(Paths.get(pcPath + "/" + name), tmp, StandardOpenOption.APPEND);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return true;
-    }
-
-    public boolean sendFile(String pcPath, String name) {
-        try {
-            byte[] bytes = Files.readAllBytes(Paths.get(pcPath + "/" + name.replace("??", " ")));
-            System.out.println("Size of bytes: " + bytes.length);
-            os.write(bytes);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return true;
     }
 
     @Override
@@ -190,38 +187,4 @@ public class Client implements Closeable {
         is.close();
         os.close();
     }
-
-//    final String HOST = "localhost";
-//    final String PORT = "8080";
-//    final String PAGE = "api";
-//    final String QUERY = "login pass".replace(" ", "%20");
-//    String url = "http://" + HOST + ":" + PORT + "/" + PAGE + "?query=" + QUERY;
-//    HttpURLConnection connection = null;
-//        try {
-//        connection = (HttpURLConnection) new URL(url).openConnection();
-//        connection.setRequestMethod("GET");
-//        connection.setUseCaches(false);
-//        connection.setConnectTimeout(250);
-//        connection.setReadTimeout(250);
-//        connection.connect();
-//        StringBuilder sb = new StringBuilder();
-//        if(HttpURLConnection.HTTP_OK == connection.getResponseCode()) {
-//            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-//            String line;
-//            while ((line = in.readLine()) != null){
-//                sb.append(line);
-//                sb.append("\n");
-//            }
-//            System.out.println(sb.toString().trim());
-//        } else {
-//            System.out.println("fail " + connection.getResponseCode()+ ", " + connection.getResponseMessage());
-//        }
-//    } catch (Throwable cause) {
-//        cause.printStackTrace();
-//    }
-//        finally {
-//        if(connection != null) {
-//            connection.disconnect();
-//        }
-//    }
 }
