@@ -6,24 +6,25 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.HttpClients;
+import sun.text.normalizer.UTF16;
 
 import java.io.*;
 import java.net.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class Client implements Closeable {
+public class Client {
 
     private static Client instance;
-    private Socket socket;
-    private DataInputStream is;
-    private DataOutputStream os;
     private byte[] buffer;
     final String HOST = "localhost";
     final String PORT = "8080";
     private Integer space;
-    private Integer DEFAULT_SPACE = 15;
     private long freeSpace;
     private String login = "";
     private String message = "";
@@ -39,8 +40,8 @@ public class Client implements Closeable {
 
     private Client() {
         this.freeSpace = 0;
-        this.space = DEFAULT_SPACE;
-        this.buffer = new byte[65536]; // 64 кбайта
+        this.space = 15;
+        this.buffer = new byte[65536];
     }
 
 
@@ -106,9 +107,6 @@ public class Client implements Closeable {
                     sb.append("\n");
                 }
                 message = sb.toString().trim();
-                System.out.println("ANSWER from send message: " + message);
-            } else {
-                System.out.println("fail " + connection.getResponseCode() + ", " + connection.getResponseMessage());
             }
         } catch (Throwable cause) {
             cause.printStackTrace();
@@ -119,6 +117,7 @@ public class Client implements Closeable {
         }
     }
 
+    //Скачивание файла
     public void downloadFile(String name, String currentDir, String pcPath) {
         final String PAGE = "api/download";
         String url = "http://" + HOST + ":" + PORT + "/" + PAGE
@@ -131,10 +130,11 @@ public class Client implements Closeable {
             connection.setUseCaches(false);
             connection.setConnectTimeout(2500);
             connection.setReadTimeout(2500);
+            connection.setRequestProperty("Content-Type", "text/html; charset=UTF-8");
             connection.connect();
             if (HttpURLConnection.HTTP_OK == connection.getResponseCode()) {
                 DataInputStream in = new DataInputStream(connection.getInputStream());
-                int bytesRead = 0;
+                int bytesRead;
                 while (true) {
                     bytesRead = in.read(buffer);
                     if (bytesRead == -1) break;
@@ -160,7 +160,7 @@ public class Client implements Closeable {
         String PAGE = "api/upload";
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.addTextBody("name", name.replace("??", " "));
-        builder.addTextBody("dir", dir );
+        builder.addTextBody("dir", dir);
         File file = new File(pcPath + "/" + name.replace("??", " "));
         ContentType fileContentType = ContentType.create("image/jpeg");
         String fileName = file.getName();
@@ -180,11 +180,5 @@ public class Client implements Closeable {
     //     Чтение сообщений
     public String readMessage() {
         return message;
-    }
-
-    @Override
-    public void close() throws IOException {
-        is.close();
-        os.close();
     }
 }

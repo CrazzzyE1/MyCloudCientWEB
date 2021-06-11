@@ -32,7 +32,8 @@ public class RegistrationController {
     }
 
     public void reg() {
-        if(login.getText().trim().contains("_remove") || login.getText().trim().isEmpty() || password.getText().trim().isEmpty() || nickname.getText().trim().isEmpty()){
+        if (login.getText().trim().contains("_remove") || login.getText().trim().isEmpty()
+                || password.getText().trim().isEmpty() || nickname.getText().trim().isEmpty()) {
             login.clear();
             password.clear();
             nickname.clear();

@@ -7,10 +7,10 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-public class Main extends Application{
+public class Main extends Application {
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
+    public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("/fxml/authentication.fxml"));
         primaryStage.setTitle("MyCloudStorage");
         primaryStage.getIcons().add(new Image("/img/icon2.png"));
