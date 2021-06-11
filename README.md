@@ -1,5 +1,9 @@
 # MyCloudStorage - Desktop
  
+### Технологии: 
+- Java 8
+- JavaFX
+ 
 ### Проект состоит из двух частей:
 -	MyClient
 -	MyServer https://github.com/CrazzzyE1/cloudstorageWEB
