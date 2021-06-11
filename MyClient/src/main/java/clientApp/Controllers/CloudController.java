@@ -33,7 +33,6 @@ public class CloudController implements Initializable {
     private String listFilesOnServer;
     private String pcPath;
     private boolean sortFlag = true;
-    private long sizeOfFile = 0;
 
     public CloudController() {
         client = Client.getInstance();
@@ -45,7 +44,6 @@ public class CloudController implements Initializable {
 
     // Создание новой директории
     public void mkdir() {
-
         String name = folderName.getText().trim().replace(" ", "??");
         if (!name.isEmpty()) {
             client.sendMessage("mkdir ".concat(name.replace("[DIR]", "")).concat(" ").concat(client.getCurrentDir()));
@@ -319,7 +317,6 @@ public class CloudController implements Initializable {
     }
 
     public void checkFreeSpace(Integer space) {
-        System.out.println("Check space");
         client.sendMessage("checkSpace " + client.getLogin());
         double size = Double.parseDouble(client.readMessage());
         client.setFreeSpace((int) size);
@@ -346,7 +343,6 @@ public class CloudController implements Initializable {
             tmp = tmp.concat(String.format("%.2f", (size))).concat(" ").concat("B");
         }
         tmp = tmp.concat(" / ").concat(space.toString()).concat(" MiB");
-        System.out.println(tmp);
         freeSpace.setText(tmp);
     }
 

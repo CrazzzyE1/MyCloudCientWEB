@@ -50,7 +50,6 @@ public class AuthenticationController {
 
         if (msg.split(" ")[0].equals("authsuccess")) {
             client.setLogin(login.getText().trim());
-            System.out.println("Login: " + client.getLogin());
             changeWindow("cloud");
         } else {
             login.clear();
