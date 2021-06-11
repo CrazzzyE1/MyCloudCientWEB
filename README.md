@@ -1,8 +1,8 @@
-# MyCloudStorage
+# MyCloudStorage - Desktop
  
-### Проект состоит из двух модулей:
+### Проект состоит из двух частей:
 -	MyClient
--	MyServer
+-	MyServer https://github.com/CrazzzyE1/cloudstorageWEB
   
 ### Что умеет:
 Программа состоит из серверной и клиентской части. 
