@@ -5,7 +5,7 @@
 - JavaFX
  
 ### Видео на проект:
-https://youtu.be/dM5pHx_4Xgo
+https://www.youtube.com/watch?v=HuUEU6WP2Q0
  
 ### Проект состоит из двух частей:
 -	MyClient
