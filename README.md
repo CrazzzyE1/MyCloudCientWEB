@@ -1,8 +1,11 @@
-# MyCloudStorage - Desktop
+# MyCloudStorage - Desktop Application
  
 ### Технологии: 
 - Java 8
 - JavaFX
+ 
+### Видео на проект:
+https://youtu.be/dM5pHx_4Xgo
  
 ### Проект состоит из двух частей:
 -	MyClient
