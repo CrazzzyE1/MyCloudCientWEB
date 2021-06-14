@@ -6,22 +6,17 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.HttpClients;
-import sun.text.normalizer.UTF16;
 
 import java.io.*;
 import java.net.*;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Client {
 
     private static Client instance;
-    private byte[] buffer;
+    private final byte[] buffer;
     final String HOST = "localhost";
     final String PORT = "8080";
     private Integer space;

@@ -24,7 +24,7 @@ public class AuthenticationController {
     @FXML
     Hyperlink regLink;
 
-    private Client client;
+    private final Client client;
 
     public AuthenticationController() {
         client = Client.getInstance();
